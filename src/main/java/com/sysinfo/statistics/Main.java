@@ -12,7 +12,6 @@ import org.json.simple.JSONObject;
 
 
 public class Main {
-
     public static void main(String[] args) {
         try {
             HttpServer server = HttpServer.create(new InetSocketAddress(8000), 0);
@@ -25,7 +24,6 @@ public class Main {
     }
 
     public static class InfoHandler implements HttpHandler {
-
         public void handle(HttpExchange t) throws IOException {
             Sigar sigar = new Sigar();
             JSONObject obj = new JSONObject();
@@ -40,18 +38,15 @@ public class Main {
             } catch (Exception e) {
                 System.out.println(e.toString());
             }
-
             Mem m = new Mem();
             try {
                 m = sigar.getMem();
             } catch (Exception e) {
                 System.out.println(e.toString());
             }
-
             obj.put("freeMem", new Double(m.getActualFree()));
             obj.put("usedMemory", new Double(m.getActualUsed()));
             obj.put("usedMemPercent", new Double(m.getUsedPercent()));
-
             String jsonString = obj.toJSONString();
             t.sendResponseHeaders(200, jsonString.length());
             OutputStream os = t.getResponseBody();
