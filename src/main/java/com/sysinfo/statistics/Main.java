@@ -29,7 +29,7 @@ public class Main {
         public void handle(HttpExchange t) throws IOException {
             Sigar sigar = new Sigar();
             JSONObject obj = new JSONObject();
-            double[] averageLoad = new double[0];
+            double[] averageLoad;
             try {
                 averageLoad = sigar.getLoadAverage();
                 if (averageLoad.length == 3) {
