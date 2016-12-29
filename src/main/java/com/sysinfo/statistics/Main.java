@@ -11,6 +11,7 @@ import java.io.*;
 import java.net.InetSocketAddress;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
+import java.nio.channels.OverlappingFileLockException;
 
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -87,7 +88,7 @@ public class Main {
 
         public JSONArray respond() {
             // split name by - output-time-" + context.getStormId()
-            final File folder = new File("/var/latencies");
+            final File folder = new File("/var/latencies/");
             JSONArray obj = new JSONArray();
             File[] files = folder.listFiles();
             try {
@@ -95,19 +96,35 @@ public class Main {
                     File file = files[i];
 
                     if (!file.isDirectory()) {
-                        FileChannel channel = new RandomAccessFile(file, "rw").getChannel();
-
-                        FileLock lock = channel.tryLock();
-                        while (lock == null) {
+                     //   FileChannel channel = new RandomAccessFile(file, "rw").getChannel();
+                      //  FileLock lock =  null; //channel.tryLock();
+                      /*  while (lock == null) {
                             lock = channel.tryLock();
-                        }
+                        }*/
+
+                       /* while(lock == null) {
+                            try {
+                                lock = channel.tryLock(0L, Long.MAX_VALUE, true);
+                            } catch (OverlappingFileLockException e) {
+                                System.out.println("OverlappingFileLockException " + e.toString());
+                                e.printStackTrace();
+                                // File is already locked in this thread or virtual machine
+                            }
+                            // wait for the other process to unlock it, should take a couple of seconds
+                            try {
+                                Thread.sleep(500);
+                            } catch(InterruptedException e) {
+                                System.out.println("InterruptedException " + e.toString());
+                                e.printStackTrace();
+                                // someone waked us earlier, no problem
+                            }
+                        }*/
+
 
                         BufferedReader br = null;
                         String line = "";
                         String cvsSplitBy = ",";
-
                         try {
-
                             br = new BufferedReader(new FileReader(file));
                             while ((line = br.readLine()) != null) {
                                 String[] split_line = line.split(cvsSplitBy);
@@ -135,17 +152,15 @@ public class Main {
                                 }
                             }
                         }
-
-                        lock.release();
-                        channel.close();
-
+                      //  lock.release();
+                      //  channel.close();
                     }
                 }
             } catch (Exception e) {
                 System.out.println("Exception: " + e.toString());
+                e.printStackTrace();
             }
             return obj;
-
         }
     }
 }
