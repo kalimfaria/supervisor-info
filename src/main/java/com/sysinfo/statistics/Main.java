@@ -85,7 +85,6 @@ public class Main {
             os.close();
         }
 
-
         public JSONArray respond() {
             // split name by - output-time-" + context.getStormId()
             final File folder = new File("/var/latencies/");
@@ -96,48 +95,25 @@ public class Main {
                     File file = files[i];
 
                     if (!file.isDirectory()) {
-                     //   FileChannel channel = new RandomAccessFile(file, "rw").getChannel();
-                      //  FileLock lock =  null; //channel.tryLock();
-                      /*  while (lock == null) {
-                            lock = channel.tryLock();
-                        }*/
-
-                       /* while(lock == null) {
-                            try {
-                                lock = channel.tryLock(0L, Long.MAX_VALUE, true);
-                            } catch (OverlappingFileLockException e) {
-                                System.out.println("OverlappingFileLockException " + e.toString());
-                                e.printStackTrace();
-                                // File is already locked in this thread or virtual machine
-                            }
-                            // wait for the other process to unlock it, should take a couple of seconds
-                            try {
-                                Thread.sleep(500);
-                            } catch(InterruptedException e) {
-                                System.out.println("InterruptedException " + e.toString());
-                                e.printStackTrace();
-                                // someone waked us earlier, no problem
-                            }
-                        }*/
-
-
                         BufferedReader br = null;
                         String line = "";
                         String cvsSplitBy = ",";
                         try {
                             br = new BufferedReader(new FileReader(file));
                             while ((line = br.readLine()) != null) {
-                                String[] split_line = line.split(cvsSplitBy);
-                                String topology = split_line[0];
-                                String spout = split_line[1];
-                                String sink = split_line[2];
-                                String latency = (split_line[3]);
-                                JSONObject t = new JSONObject();
-                                t.put("topology", topology);
-                                t.put("spout", spout);
-                                t.put("sink", sink);
-                                t.put("latency", latency);
-                                obj.add(t);
+                                if (line.length() != 0) {
+                                    String[] split_line = line.split(cvsSplitBy);
+                                    String topology = split_line[0];
+                                    String spout = split_line[1];
+                                    String sink = split_line[2];
+                                    String latency = (split_line[3]);
+                                    JSONObject t = new JSONObject();
+                                    t.put("topology", topology);
+                                    t.put("spout", spout);
+                                    t.put("sink", sink);
+                                    t.put("latency", latency);
+                                    obj.add(t);
+                                }
                             }
                         } catch (FileNotFoundException e) {
                             e.printStackTrace();
@@ -152,8 +128,6 @@ public class Main {
                                 }
                             }
                         }
-                      //  lock.release();
-                      //  channel.close();
                     }
                 }
             } catch (Exception e) {
